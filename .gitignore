@@ -1,3 +1,12 @@
+# Torch Models
+*.pt
+
+# Mac nonesense
+.DS_store
+
+# C Spell settings
+settings.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

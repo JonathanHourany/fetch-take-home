@@ -1,0 +1,33 @@
+[project]
+name = "fetch-take-home"
+version = "0.1.0"
+description = "Take home assignment from Fetch"
+authors = [
+    {name = "Jonathan Hourany"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas (>=2.2.3,<3.0.0)",
+    "transformers (>=4.49.0,<5.0.0)",
+    "scikit-learn (>=1.6.1,<2.0.0)",
+    "torch (>=2.6.0,<3.0.0)",
+    "matplotlib (>=3.10.1,<4.0.0)"
+]
+
+[tool.poetry]
+
+[tool.poetry.group.dev.dependencies]
+black = "^25.1.0"
+isort = "^6.0.1"
+mypy = "^1.15.0"
+pandas-stubs = "^2.2.3.250308"
+ipython = "^9.0.2"
+jupyter = "^1.1.1"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+disable_error_code = ["import-untyped"]
