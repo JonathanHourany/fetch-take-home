@@ -123,15 +123,21 @@ def generate_model_name(
     return f"{model_name}-L{num_transformer_blocks}-{params_in_millions}M-{date_str}"
 
 
-def plot_losses(*losses, labels: Sequence[str]) -> Figure:
+def plot_records(
+    *losses,
+    labels: Sequence[str],
+    xlabel="Number of Training Steps",
+    ylabel="Loss",
+    title="Training Losses",
+) -> Figure:
     fig, ax = plt.subplots(figsize=(8, 6))
 
     for loss, label in zip(losses, labels):
         ax.plot(loss, label=label)
 
-    ax.set_xlabel("Number of Training Steps")
-    ax.set_ylabel("Loss")
-    ax.set_title("Training Losses")
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
     ax.legend()
 
     return fig

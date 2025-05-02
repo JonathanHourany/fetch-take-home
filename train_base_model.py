@@ -1,13 +1,14 @@
 from pathlib import Path
+from datasets import load_dataset
 
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
 
-from llm_tools.datasets import AGNewsDataset
+from llm_tools.datasets import TextDataset
 from llm_tools.modules.models import TransformerModel
-from llm_tools.utils import generate_model_name, plot_losses, plot_tsne
+from llm_tools.utils import generate_model_name, plot_records, plot_tsne
 
 OPENAI_AG_SAMPLES = "https://raw.githubusercontent.com/openai/openai-cookbook/refs/heads/main/examples/data/AG_news_samples.csv"
 PLOT_WORDS = [
@@ -40,7 +41,7 @@ PLOT_WORDS = [
 
 
 def main(
-    max_seq_length: int = 256,
+    max_seq_length: int = 512,
     num_epochs: int = 12,
     embed_dim: int = 384,
     num_attention_heads: int = 8,
@@ -51,16 +52,15 @@ def main(
 
     torch.set_default_device(device)
 
+    open_web_dataset = load_dataset("openwebtext", split="train[:1%]")
+
     tokenizer = AutoTokenizer.from_pretrained("gpt2")
     tokenizer.pad_token = tokenizer.eos_token
 
-    train_data = AGNewsDataset(
-        df=OPENAI_AG_SAMPLES,
-        tokenizer=tokenizer,
-        max_seq_length=max_seq_length,
+    train_data = TextDataset(
+        open_web_dataset["text"][:20_000], tokenizer=tokenizer, max_seq_length=max_seq_length
     )
-
-    train_dataloader = DataLoader(train_data, batch_size=8, shuffle=True)
+    train_dataloader = DataLoader(train_data, batch_size=16, shuffle=True)
 
     model = TransformerModel(
         num_attention_heads=num_attention_heads,
@@ -72,6 +72,7 @@ def main(
 
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
     loss_record: list[float] = []
+    perplexity_record: list[float] = []
 
     # Training loop
     for epoch in range(num_epochs):
@@ -94,6 +95,7 @@ def main(
                 ),
             )
             loss_record.append(loss.item())
+            perplexity_record.append(torch.exp(loss).item())
 
             optimizer.zero_grad()
             loss.backward()
@@ -101,7 +103,7 @@ def main(
 
             print(
                 f"Epoch: {epoch} | Batch: {batch_number:>3}/{len(train_dataloader)} "
-                f"| Loss: {loss.item():>7.4f} | Perplexity: {torch.exp(loss).item()}"
+                f"| Loss: {loss.item():>7.4f} | Perplexity: {torch.exp(loss).item():.2f}"
             )
 
     # Save the model
@@ -123,8 +125,13 @@ def main(
     )
 
     # Plot losses
-    loss_fig = plot_losses(loss_record, labels=("Training",))
+    loss_fig = plot_records(loss_record, labels=("Training",))
     loss_fig.savefig(model_dir / "losses.png")
+
+    # Plot perplexity
+    ## Don't log first few steps
+    perplexity_fig = plot_records(perplexity_record[10:], labels=("Perplexity",))
+    perplexity_fig.savefig(model_dir / "perplexity.png")
 
     # Plot the embeddings
     plot_words_ids = [
@@ -140,9 +147,9 @@ def main(
 
 if __name__ == "__main__":
     main(
-        max_seq_length=512,
-        num_epochs=3,
-        embed_dim=384,
+        max_seq_length=256,
+        num_epochs=5,
+        embed_dim=512,
         num_attention_heads=4,
         num_transformer_blocks=3,
         device="cpu",

@@ -13,7 +13,7 @@ from llm_tools.modules.models import MultiTaskModel
 from llm_tools.utils import (
     compute_validation_loss,
     generate_model_name,
-    plot_losses,
+    plot_records,
     plot_tsne,
     roundrobin_iters,
     track_gradient_norms,
@@ -199,7 +199,7 @@ def main(
     )
     tsne_fig.savefig(model_dir / "sentence_embeddings_tsne.png")
 
-    losses_fig = plot_losses(
+    losses_fig = plot_records(
         train_loss_record,
         ag_average_val_loss_record,
         imdb_average_val_loss_record,

@@ -13,7 +13,7 @@ from llm_tools.modules.models import SentenceTransformer
 from llm_tools.utils import (
     compute_validation_loss,
     generate_model_name,
-    plot_losses,
+    plot_records,
     plot_tsne,
 )
 
@@ -126,7 +126,7 @@ def main(
     )
     tsne_fig.savefig(model_dir / "sentence_embeddings_tsne.png")
 
-    losses_fig = plot_losses(
+    losses_fig = plot_records(
         loss_record, val_loss_record, labels=("Training", "Validation")
     )
     losses_fig.savefig(model_dir / "losses.png")
