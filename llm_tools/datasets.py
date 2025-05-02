@@ -80,11 +80,12 @@ class LabeledTextDataset(Dataset):
         }
 
 class TextDataset(Dataset):
-    def __init__(self, text: Sequence[str], tokenizer, max_length: int = 1024):
+    def __init__(self, text: Sequence[str], tokenizer, max_seq_length: int = 1024):
         batch_encoding = tokenizer(
             text,
-            max_length=max_length,
-            truncation="true",
+            padding="max_length",
+            max_length=max_seq_length,
+            truncation=True,
             return_tensors="pt",
         )
 
