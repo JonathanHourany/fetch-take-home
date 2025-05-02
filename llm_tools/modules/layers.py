@@ -64,7 +64,8 @@ class TransformerBlock(nn.Module):
             nn.ReLU(),
             nn.Linear(ffwd_expansion * embed_dim, embed_dim),
         )
-        self.dropout = nn.Dropout(dropout)
+        self.dropout1 = nn.Dropout(dropout)
+        self.dropout2 = nn.Dropout(dropout)
 
     def forward(
         self, sequence: torch.Tensor, attention_mask: torch.Tensor | None = None
@@ -78,9 +79,9 @@ class TransformerBlock(nn.Module):
             attn_mask=attention_mask,
             is_causal=True,
         )
-        mha_residuals = atten_out + sequence
+        mha_residuals = self.dropout1(atten_out) + sequence
         layer_norm2 = self.layer_norm2(mha_residuals)
-        sequence = self.linear1(layer_norm2) + mha_residuals
-        sequence = self.dropout(sequence)
+        sequence = self.linear1(layer_norm2)
+        sequence = self.dropout2(sequence) + mha_residuals
 
         return sequence
