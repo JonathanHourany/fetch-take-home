@@ -79,6 +79,7 @@ class LabeledTextDataset(Dataset):
             "label": self.labels[idx],
         }
 
+
 class TextDataset(Dataset):
     def __init__(self, text: Sequence[str], tokenizer, max_seq_length: int = 1024):
         batch_encoding = tokenizer(
