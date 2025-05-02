@@ -8,7 +8,12 @@ if TYPE_CHECKING:
 MULTI_TASK_MODELS: TypeAlias = Literal["topics", "sentiment"]
 
 
-class BatchTextEncoding(TypedDict):
+class LabeledBatchTextEncoding(TypedDict):
     input_ids: torch.Tensor
     attention_mask: torch.Tensor
     label: float | list[float]
+
+
+class BatchTextEncoding(TypedDict):
+    input_ids: torch.Tensor
+    attention_mask: torch.Tensor

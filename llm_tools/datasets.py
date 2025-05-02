@@ -7,7 +7,7 @@ import torch
 from numpy.typing import NDArray
 from torch.utils.data import Dataset
 
-from llm_tools.typing import BatchTextEncoding
+from llm_tools.typing import LabeledBatchTextEncoding, BatchTextEncoding
 
 if TYPE_CHECKING:
     from transformers.tokenization_utils_base import PreTrainedTokenizerBase
@@ -40,7 +40,7 @@ class AGNewsDataset(Dataset):
     def __len__(self):
         return len(self.news_descriptions)
 
-    def __getitem__(self, idx) -> BatchTextEncoding:
+    def __getitem__(self, idx) -> LabeledBatchTextEncoding:
         return {
             "input_ids": self.news_descriptions[idx],
             "attention_mask": self.attention_masks[idx].type(torch.float16),
@@ -48,7 +48,7 @@ class AGNewsDataset(Dataset):
         }
 
 
-class TextDataset(Dataset):
+class LabeledTextDataset(Dataset):
     def __init__(
         self,
         text: str | Sequence[str],
@@ -72,9 +72,30 @@ class TextDataset(Dataset):
     def __len__(self):
         return len(self.input_ids)
 
-    def __getitem__(self, idx) -> BatchTextEncoding:
+    def __getitem__(self, idx) -> LabeledBatchTextEncoding:
         return {
             "input_ids": self.input_ids[idx],
             "attention_mask": self.attention_masks[idx],
             "label": self.labels[idx],
+        }
+
+class TextDataset(Dataset):
+    def __init__(self, text: Sequence[str], tokenizer, max_length: int = 1024):
+        batch_encoding = tokenizer(
+            text,
+            max_length=max_length,
+            truncation="true",
+            return_tensors="pt",
+        )
+
+        self.input_ids = batch_encoding["input_ids"]
+        self.attention_masks = batch_encoding["attention_mask"].type(torch.float16)
+
+    def __len__(self):
+        return len(self.input_ids)
+
+    def __getitem__(self, idx) -> BatchTextEncoding:
+        return {
+            "input_ids": self.input_ids[idx],
+            "attention_mask": self.attention_masks[idx],
         }

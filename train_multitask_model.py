@@ -8,7 +8,7 @@ from sklearn.metrics import classification_report
 from torch.utils.data import DataLoader, random_split
 from transformers import AutoTokenizer
 
-from llm_tools.datasets import TextDataset
+from llm_tools.datasets import LabeledTextDataset
 from llm_tools.modules.models import MultiTaskModel
 from llm_tools.utils import (
     compute_validation_loss,
@@ -55,13 +55,13 @@ def main(
     sentiment_map = {"negative": np.float32(0), "positive": np.float32(1)}
     imdb_df["sentiment"] = imdb_df["sentiment"].map(sentiment_map)
 
-    ag_dataset = TextDataset(
+    ag_dataset = LabeledTextDataset(
         text=ag_df.description.to_list(),
         labels=ag_df.label_int.to_list(),
         tokenizer=tokenizer,
         max_seq_length=max_seq_length,
     )
-    imdb_dataset = TextDataset(
+    imdb_dataset = LabeledTextDataset(
         text=imdb_df.review.to_list(),
         labels=imdb_df.sentiment.values,
         tokenizer=tokenizer,

@@ -101,7 +101,7 @@ def main(
 
             print(
                 f"Epoch: {epoch} | Batch: {batch_number:>3}/{len(train_dataloader)} "
-                f"| Loss: {loss.item():>7.4f}"
+                f"| Loss: {loss.item():>7.4f} | Perplexity: {torch.exp(loss).item()}"
             )
 
     # Save the model
